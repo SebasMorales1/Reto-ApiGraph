@@ -9,7 +9,9 @@ export const CreateCountry = () => {
     name: "",
     code: "",
     language: "",
-    continent: ""
+    continent: "",
+    currency: "", 
+    capital: "" 
   });
   const formRef = useRef(null);
 
@@ -18,7 +20,9 @@ export const CreateCountry = () => {
       code: "",
       name: "",
       continent: "",
-      language: ""
+      language: "",
+      currency: "", 
+      capital: "" 
     });
     setOk(false);
     document.getElementById("codeInput").value = "";
@@ -40,6 +44,8 @@ export const CreateCountry = () => {
               continent {
                 name
               }
+              currency
+              capital
             }
           }
         `
@@ -51,7 +57,9 @@ export const CreateCountry = () => {
           code: countryData.code,
           name: countryData.name,
           continent: countryData.continent.name,
-          language: countryData.languages.length > 0 ? countryData.languages[0].name : ''
+          language: countryData.languages.length > 0 ? countryData.languages[0].name : '',
+          currency: countryData.currency, 
+          capital: countryData.capital 
         });
         setOk(true);
         swal("País encontrado", "¡Éxito!", "success");
@@ -71,7 +79,9 @@ export const CreateCountry = () => {
       code: e.target.code.value,
       name: e.target.name.value,
       language: e.target.language.value,
-      continent: e.target.continent.value
+      continent: e.target.continent.value,
+      currency: data.currency, 
+      capital: data.capital 
     };
 
     // Verificar si el país ya está creado
@@ -82,7 +92,6 @@ export const CreateCountry = () => {
         return;
       }
     } catch (error) {
-
       return;
     }
 
@@ -141,6 +150,10 @@ export const CreateCountry = () => {
             <input type="text" id="continent" name="continent" value={data.continent} onChange={e => setData({ ...data, continent: e.target.value })} />
           </div>
         </div>
+
+        {/* Estos inputs están ocultos y no se muestran, pero se envían al servidor */}
+        <input type="hidden" name="currency" value={data.currency} />
+        <input type="hidden" name="capital" value={data.capital} />
 
         <div className="buttons">
           <div>

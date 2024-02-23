@@ -1,5 +1,6 @@
-import './ManageCountry.css';
 import { useState } from 'react';
+import axios from 'axios';
+import './ManageCountry.css';
 
 const ManageCountry = () => {
   const [data, setData] = useState({
@@ -8,119 +9,117 @@ const ManageCountry = () => {
     capital: "",
     language: "",
     continent: "",
-    currency: "", // Agrega currency al estado
+    currency: "", 
     consulta: "",
     _id: ""
   });
 
   const [ok, setOk] = useState("");
+  const [error, setError] = useState("");
 
-  const consultar = function () {
-    const URL = "http://127.0.0.1:3000/countryByCode/" + data.consulta;
-    fetch(URL)
-      .then(res => res.json())
-      .then(countryData => {
-        setData({
-          code: countryData.code,
-          name: countryData.name,
-          continent: countryData.continent,
-          language: countryData.language,
-          capital: countryData.capital || "", // Asigna la capital o cadena vacía si es null
-          currency: countryData.currency || "", // Asigna la moneda o cadena vacía si es null
-          consulta: countryData.code,
-          id: countryData._id
-        });
-      })
-      .catch(err => console.log(err));
+  const consultar = async () => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:3000/countryByCode/${data.consulta}`);
+      const countryData = response.data;
+      setData({
+        code: countryData.code,
+        name: countryData.name,
+        continent: countryData.continent,
+        language: countryData.language,
+        capital: countryData.capital ,
+        currency: countryData.currency ,
+        consulta: countryData.code,
+        _id: countryData._id
+      });
+      setOk("");
+      setError("");
+    } catch (error) {
+      setError("Error al consultar el país");
+      console.error(error);
+    }
   };
 
-  const Delete = function () {
-    const URL = "http://127.0.0.1:3000/countries/" + data.id;
-    fetch(URL, { method: "DELETE" })
-      .then(res => {
-        if (res.ok) {
-          setOk("Eliminado Correctamente");
-        }
-      })
-      .catch(err => console.log(err));
-
-    setData({
-      code: "",
-      name: "",
-      continent: "",
-      capital: "", // Asegúrate de limpiar capital y currency también
-      currency: "",
-      languages: ""
-    });
+  const deleteCountry = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:3000/countries/${data._id}`);
+      setOk("País eliminado correctamente");
+      setData({
+        code: "",
+        name: "",
+        continent: "",
+        capital: "",
+        currency: "",
+        language: "",
+        consulta: "",
+        _id: ""
+      });
+      setError("");
+    } catch (error) {
+      setError("Error al eliminar el país");
+      console.error(error);
+    }
   };
 
-  const update = function () {
-    const URL = "http://127.0.0.1:3000/countries/" + data.id;
-    const newData = {
-      code: data.code,
-      name: data.name,
-      continent: data.continent,
-      capital: data.capital,
-      currency: data.currency,
-      language: data.language
-    };
-
-    const settings = {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(newData)
-    };
-
-    fetch(URL, settings)
-      .then(res => {
-        if (res.ok) {
-          setOk("Editado Correctamente");
-        }
-      })
-      .catch(err => console.log(err));
-
-    setData({
-      code: "",
-      name: "",
-      continent: "",
-      capital: "",
-      currency: "",
-      languages: ""
-    });
+  const update = async () => {
+    try {
+      const newData = {
+        code: data.code,
+        name: data.name,
+        continent: data.continent,
+        capital: data.capital,
+        currency: data.currency,
+        language: data.language
+      };
+      await axios.put(`http://127.0.0.1:3000/countries/${data._id}`, newData);
+      setOk("País actualizado correctamente");
+      setData({
+        code: "",
+        name: "",
+        continent: "",
+        capital: "",
+        currency: "",
+        language: "",
+        consulta: "",
+        _id: ""
+      });
+      setError("");
+    } catch (error) {
+      setError("Error al actualizar el país");
+      console.error(error);
+    }
   };
 
   return (
     <div className="containerManage">
       <div className='codigo'>
-        <label htmlFor="miInput">Codigo del Pais:</label>
+        <label htmlFor="miInput">Código del País:</label>
         <input type="text" id="miInput" name="miInput" value={data.consulta} onChange={e => setData({ ...data, consulta: e.target.value })} />
-        <button type="button" id='quer' onClick={consultar}>Consultar </button>
+        <button type="button" id='quer' onClick={consultar}>Consultar</button>
       </div>
 
       <div className='inputts'>
+        {error && <p>{error}</p>}
         {ok && <p>{ok}</p>}
         <div className='language'>
           <form>
-            <label htmlFor="codigo"> Código:</label>
+            <label htmlFor="codigo">Código:</label>
             <input type="text" id="codigo" name="codigo" value={data.code} onChange={e => setData({ ...data, code: e.target.value })} />
           </form>
 
           <form>
-            <label htmlFor="miInput">Lengua</label>
+            <label htmlFor="miInput">Lengua:</label>
             <input type="text" id="miInput" name="miInput" value={data.language} onChange={e => setData({ ...data, language: e.target.value })} />
           </form>
 
           <form>
-            <label htmlFor="miInput">Capital</label>
+            <label htmlFor="miInput">Capital:</label>
             <input type="text" id='Conti' name="miInput" value={data.capital} onChange={e => setData({ ...data, capital: e.target.value })} />
           </form>
         </div>
 
         <div className='name'>
           <form>
-            <label htmlFor="miInput"> Nombre:</label>
+            <label htmlFor="miInput">Nombre:</label>
             <input type="text" id="miInput" name="miInput" value={data.name} onChange={e => setData({ ...data, name: e.target.value })} />
           </form>
 
@@ -138,7 +137,7 @@ const ManageCountry = () => {
 
       <div className='updates'>
         <div>
-          <button id='buton1' onClick={Delete}>Eliminar</button>
+          <button id='buton1' onClick={deleteCountry}>Eliminar</button>
           <button id='buton2' onClick={update}>Actualizar</button>
         </div>
       </div>
